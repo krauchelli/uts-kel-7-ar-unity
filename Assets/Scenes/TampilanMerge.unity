@@ -786,7 +786,7 @@ GameObject:
   - component: {fileID: 167758581}
   - component: {fileID: 167758580}
   m_Layer: 5
-  m_Name: Icon
+  m_Name: Icon3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1228,7 +1228,7 @@ GameObject:
   - component: {fileID: 487050912}
   - component: {fileID: 487050911}
   m_Layer: 5
-  m_Name: FilterName
+  m_Name: FilterName3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1479,7 +1479,7 @@ GameObject:
   - component: {fileID: 562151147}
   - component: {fileID: 562151146}
   m_Layer: 5
-  m_Name: FilterName
+  m_Name: FilterName1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1603,6 +1603,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 562151144}
   m_CullTransparentMesh: 1
+--- !u!1 &579177621
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 579177623}
+  - component: {fileID: 579177622}
+  m_Layer: 0
+  m_Name: FilterManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &579177622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579177621}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717a006c16cbb8d4d91328bba90fc354, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maleIcons:
+  - {fileID: 21300000, guid: 09e6bd9a7297a0b46ba3e90cacbfff2f, type: 3}
+  - {fileID: 21300000, guid: f41a3ea8e30e381439a033c016f555ec, type: 3}
+  - {fileID: 21300000, guid: 271bc1c3a278c9f45917a3afb7f1dba2, type: 3}
+  maleLabels:
+  - Beard
+  - Moustache
+  - Sunglasses
+  femaleIcons:
+  - {fileID: 21300000, guid: 6714f4482eedcde4b867fd873710de40, type: 3}
+  - {fileID: 21300000, guid: 3bf8f3c32b5f24e40b7edaf7e103e829, type: 3}
+  - {fileID: 21300000, guid: b154fe32cd0f2f1419443dc2d1a2a3eb, type: 3}
+  femaleLabels:
+  - Lipstick
+  - Sunglasses
+  - Flower
+  Status:
+    StatusBackground: {fileID: 716837536}
+    StatusText: {fileID: 1618875538}
+  genderLevel: 0
+--- !u!4 &579177623
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579177621}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 231.65749, y: 135.6368, z: -3.3854427}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &599435679
 GameObject:
   m_ObjectHideFlags: 0
@@ -1935,7 +1999,7 @@ GameObject:
   - component: {fileID: 716837536}
   - component: {fileID: 716837535}
   m_Layer: 5
-  m_Name: Status Backgrounf
+  m_Name: Status Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1989,7 +2053,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.7432761, b: 1, a: 1}
+  m_Color: {r: 0.8627451, g: 0.2745098, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2596,7 +2660,7 @@ GameObject:
   - component: {fileID: 1388689887}
   - component: {fileID: 1388689886}
   m_Layer: 5
-  m_Name: Icon
+  m_Name: Icon2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3828,7 +3892,7 @@ GameObject:
   - component: {fileID: 1897263688}
   - component: {fileID: 1897263687}
   m_Layer: 5
-  m_Name: FilterName
+  m_Name: FilterName2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4337,7 +4401,7 @@ GameObject:
   - component: {fileID: 2136532810}
   - component: {fileID: 2136532809}
   m_Layer: 5
-  m_Name: Icon
+  m_Name: Icon1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4531,3 +4595,4 @@ SceneRoots:
   - {fileID: 2120338907}
   - {fileID: 542255220}
   - {fileID: 1850808568}
+  - {fileID: 579177623}
