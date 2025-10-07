@@ -1,27 +1,18 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.Networking;
-using TMPro;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using Unity.Collections;
-using Unity.Collections.LowLevel.Unsafe;
 
-// --- Struktur JSON ---
+// =========================
+// Data Struktur JSON
+// =========================
 [Serializable]
 public class PredictionRequest
 {
     public string image_data;
-}
-
-[Serializable]
-public class PredictionResponse
-{
-    public int statusCode;
-    public string message;
-    public PredictionData data;
 }
 
 [Serializable]
@@ -31,61 +22,78 @@ public class PredictionData
     public float confidence;
 }
 
-// --- Script utama ---
+[Serializable]
+public class PredictionResponse
+{
+    public int statusCode;
+    public PredictionData data;
+}
+
+// =========================
+// API Manager
+// =========================
 public class APIManager : MonoBehaviour
 {
-    [Header("Konfigurasi API")]
-    [SerializeField] private string backendUrl = "https://krauchelli-uts-kel-7-ar-backend.hf.space/api/predict";
-
-    [Header("UI References")]
-    // [SerializeField] private Button scanButton;
-
-    [Header("AR Components")]
-    [SerializeField] private ARCameraManager cameraManager;
-    [SerializeField] private ARFaceManager faceManager;
-
-    [Header("Script References")]
-    public FaceDetection faceDetection;
-    public FilterManagerIcon filterManagerIcon;
+    [Header("Dependencies")]
+    public ARCameraManager cameraManager;
     public UIStatusManager UIStatus;
+    public FilterManagerIcon filterManagerIcon;
+    public FaceDetection faceDetection;
 
+    [Header("Server Settings")]
+    [Tooltip("URL endpoint API backend kamu")]
+    public string backendUrl = "https://krauchelli-uts-kel-7-ar-backend.hf.space/api/predict";
+
+    // =========================
+    // Coroutine Utama
+    // =========================
     public IEnumerator CaptureAndSendImageRoutine()
     {
         if (cameraManager == null)
         {
-            UIStatus.SetStatusText("Error: ARCameraManager tidak diset!", "ERROR");
+            UIStatus.SetStatusText("Error: ARCameraManager belum diset!", "ERROR");
             faceDetection.SetScanButtonInteractable(false);
             yield break;
         }
 
-        // 1️⃣ Ambil gambar dari kamera
+        yield return new WaitForEndOfFrame(); // biar CPU image valid
+
+        // Ambil frame dari kamera AR
         if (!cameraManager.TryAcquireLatestCpuImage(out XRCpuImage cpuImage))
         {
-            UIStatus.SetStatusText("Error: Gagal mengakses data kamera.", "ERROR");
+            UIStatus.SetStatusText("Gagal mengakses kamera. Coba lagi.", "ERROR");
             faceDetection.SetScanButtonInteractable(true);
             yield break;
         }
 
-        // 2️⃣ Konversi ke Texture2D
+        // Konversi ke Texture2D
         Texture2D cameraTexture = ConvertCpuImageToTexture(cpuImage);
         cpuImage.Dispose();
 
         if (cameraTexture == null)
         {
-            UIStatus.SetStatusText("Error: Gagal memproses gambar.", "ERROR");
+            UIStatus.SetStatusText("Gagal memproses gambar kamera.", "ERROR");
             faceDetection.SetScanButtonInteractable(true);
             yield break;
         }
 
-        // 3️⃣ Encode ke Base64
-        byte[] imageBytes = cameraTexture.EncodeToJPG(75);
+        // Encode ke Base64
+        byte[] imageBytes = cameraTexture.EncodeToJPG(80);
         string base64String = Convert.ToBase64String(imageBytes);
         Destroy(cameraTexture);
 
-        // 4️⃣ Siapkan payload JSON
+        Debug.Log($"[DEBUG] Base64 length: {base64String.Length}");
+
+        if (base64String.Length < 1000)
+            Debug.LogWarning("[WARNING] Base64 terlalu pendek, kemungkinan konversi gagal.");
+
+        // Buat JSON payload
         PredictionRequest requestObject = new PredictionRequest { image_data = base64String };
         string jsonPayload = JsonUtility.ToJson(requestObject);
 
+        Debug.Log($"[DEBUG] Payload JSON: {jsonPayload.Substring(0, Mathf.Min(150, jsonPayload.Length))}...");
+
+        // Kirim ke backend
         using (UnityWebRequest request = new UnityWebRequest(backendUrl, "POST"))
         {
             byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(jsonPayload);
@@ -93,72 +101,84 @@ public class APIManager : MonoBehaviour
             request.downloadHandler = new DownloadHandlerBuffer();
             request.SetRequestHeader("Content-Type", "application/json");
 
+            UIStatus.SetStatusText("Mengirim gambar ke server...", "SYSTEM");
+
             yield return request.SendWebRequest();
 
-            // 5️⃣ Tangani respons
+            string responseText = request.downloadHandler.text;
+            Debug.Log($"[DEBUG] Server Response: {responseText}");
+
             if (request.result == UnityWebRequest.Result.Success)
             {
-                string responseJson = request.downloadHandler.text;
                 try
                 {
-                    PredictionResponse response = JsonUtility.FromJson<PredictionResponse>(responseJson);
+                    PredictionResponse response = JsonUtility.FromJson<PredictionResponse>(responseText);
+
                     if (response != null && response.data != null)
                     {
-                        filterManagerIcon.OnGenderDetected(response.data.prediction, response.data.confidence);
-                        // TODO: panggil filter di sini
+                        string prediction = response.data.prediction;
+                        float confidence = response.data.confidence;
+
+                        filterManagerIcon.OnGenderDetected(prediction, confidence);
+                        UIStatus.SetStatusText($"Prediksi: {prediction} ({confidence:P0})", "SUCCESS");
                     }
                     else
                     {
-                        UIStatus.SetStatusText("Error: Respons tidak valid dari server.", "ERROR");
+                        UIStatus.SetStatusText("Error: Respons kosong / tidak valid.", "ERROR");
+                        Debug.LogWarning($"[WARNING] Respons tidak lengkap: {responseText}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    UIStatus.SetStatusText($"Error parsing JSON: {ex.Message}", "ERROR");
+                    UIStatus.SetStatusText($"Gagal parsing JSON: {ex.Message}", "ERROR");
+                    Debug.LogError($"[EXCEPTION] {ex}");
                 }
             }
             else
             {
-                UIStatus.SetStatusText($"Error: {request.error}", "ERROR");
+                UIStatus.SetStatusText($"Server Error: {request.responseCode} ({request.error})", "ERROR");
+                Debug.LogError($"[HTTP {request.responseCode}] {responseText}");
             }
         }
 
         faceDetection.SetScanButtonInteractable(true);
     }
 
-    private unsafe Texture2D ConvertCpuImageToTexture(XRCpuImage cpuImage)
+    // =========================
+    // Konversi Gambar CPU → Texture2D
+    // =========================
+    private Texture2D ConvertCpuImageToTexture(XRCpuImage cpuImage)
     {
         try
         {
-            var format = TextureFormat.RGBA32;
             var conversionParams = new XRCpuImage.ConversionParams
             {
                 inputRect = new RectInt(0, 0, cpuImage.width, cpuImage.height),
                 outputDimensions = new Vector2Int(cpuImage.width, cpuImage.height),
-                outputFormat = format,
-                transformation = XRCpuImage.Transformation.MirrorY // Biar hasilnya gak terbalik
+                outputFormat = TextureFormat.RGBA32,
+                transformation = XRCpuImage.Transformation.MirrorY
             };
 
             int size = cpuImage.GetConvertedDataSize(conversionParams);
             var buffer = new NativeArray<byte>(size, Allocator.Temp);
+            cpuImage.Convert(conversionParams, buffer);
 
-            cpuImage.Convert(conversionParams, new IntPtr(buffer.GetUnsafePtr()), buffer.Length);
-
-            var texture = new Texture2D(
+            Texture2D texture = new Texture2D(
                 conversionParams.outputDimensions.x,
                 conversionParams.outputDimensions.y,
-                format,
-                false);
+                conversionParams.outputFormat,
+                false
+            );
 
             texture.LoadRawTextureData(buffer);
             texture.Apply();
-
             buffer.Dispose();
+
             return texture;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Debug.LogError($"Gagal konversi gambar CPU: {e.Message}");
+            Debug.LogError($"[ERROR] Gagal convert CpuImage: {ex.Message}");
             return null;
         }
     }

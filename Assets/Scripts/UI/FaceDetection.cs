@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class FaceDetection : MonoBehaviour
 {
-
     public ARFaceManager faceManager;
     public FilterManagerIcon filterManagerIcon;
 
@@ -20,20 +19,26 @@ public class FaceDetection : MonoBehaviour
     public UIStatusManager UIStatus;
     public APIManager APIManager;
 
+    private bool isDetecting = false;
+    private Coroutine detectionCorountine;
+    private string lastMessage = "";
+
     public bool IsFaceDetected()
     {
-        return (faceManager.trackables.count > 0);
+        return (faceManager != null && faceManager.trackables.count > 0);
     }
 
     public void SetScanButtonInteractable(bool types)
     {
-        scanButton.interactable = types;
+        if (scanButton != null)
+            scanButton.interactable = types;
     }
 
     void Start()
     {
-        if (!UIStatus.IsStatusLabelNull())
+        if (UIStatus != null && !UIStatus.IsStatusLabelNull())
             UIStatus.SetStatusText("Arahkan kamera ke wajah...", "SYSTEM");
+
         if (scanButton != null)
         {
             scanButton.interactable = false;
@@ -43,23 +48,38 @@ public class FaceDetection : MonoBehaviour
 
     public void OnScanButtonPressed()
     {
-        UIStatus.SetStatusText("Memindai...", "SYSTEM");
-        scanButton.interactable = false;
-        StartCoroutine(APIManager.CaptureAndSendImageRoutine());
+        if (UIStatus != null)
+            UIStatus.SetStatusText("Memindai...", "SYSTEM");
+
+        if (scanButton != null)
+            scanButton.interactable = false;
+
+        if (APIManager != null)
+            StartCoroutine(APIManager.CaptureAndSendImageRoutine());
+        else
+            Debug.LogWarning("APIManager belum di-assign di Inspector.");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (IsFaceDetected())
+        // Cegah error jika ada komponen yang belum di-assign
+        if (faceManager == null || UIStatus == null || scanButton == null)
+            return;
+
+        bool detected = IsFaceDetected();
+
+        // Update UI dan tombol hanya jika status berubah
+        if (detected && lastMessage != "detected")
         {
-            scanButton.interactable = true;
             UIStatus.SetStatusText("Wajah Terdeteksi! Silakan klik Scan.", "SYSTEM");
+            scanButton.interactable = true;
+            lastMessage = "detected";
         }
-        else
+        else if (!detected && lastMessage != "not_detected")
         {
-            scanButton.interactable = false;
             UIStatus.SetStatusText("Arahkan kamera ke wajah...", "SYSTEM");
+            scanButton.interactable = false;
+            lastMessage = "not_detected";
         }
     }
 }

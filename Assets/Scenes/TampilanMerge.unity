@@ -2389,8 +2389,8 @@ MonoBehaviour:
   cameraManager: {fileID: 160785838}
   faceManager: {fileID: 2120338905}
   faceDetection: {fileID: 2131681921}
-  filterManagerIcon: {fileID: 0}
-  UIStatus: {fileID: 0}
+  filterManagerIcon: {fileID: 579177622}
+  UIStatus: {fileID: 1370890711}
 --- !u!4 &1032813168
 Transform:
   m_ObjectHideFlags: 0
