@@ -5,12 +5,15 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TampilanAwal.unity
     guid: b8d99e0a84c261c4d85509891d95bef8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/TambahkanFilter.unity
     guid: 31e759b1ae952404abeb5e35622d3d1f
+  - enabled: 1
+    path: Assets/Scenes/TampilanMerge.unity
+    guid: 7a718411a4ab50d498cd7bf4aa5bc4e3
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 002f23be8b57b9d47892235005051b72, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

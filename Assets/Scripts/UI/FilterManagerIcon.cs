@@ -3,11 +3,13 @@ using UnityEngine.UI;
 using TMPro;
 
 [System.Serializable]
-
-public class Status {
+public class Status
+{
     public Image StatusBackground; // background dari statusnya
     public TextMeshProUGUI StatusText; // textnya
 }
+
+[System.Serializable]
 public class FilterButton
 {
     public Button button;       // Tombol utamanya
@@ -15,7 +17,7 @@ public class FilterButton
     public TextMeshProUGUI label; // Teks di bawah icon
 }
 
-public class FilterManager : MonoBehaviour
+public class FilterManagerIcon : MonoBehaviour
 {
     [Header("Filter Buttons")]
     public FilterButton[] filterButtons;
@@ -33,11 +35,11 @@ public class FilterManager : MonoBehaviour
 
     [Header("Gender Mode (0=Unknown, 1=Male, 2=Female)")]
     [Range(0, 2)]
-    public int genderLevel = 0;
+    public int genderLevel = 0; // 0 unknown, 1 cowo, 2 cewe
 
-    private Color unknownColor = new Color32(255, 255, 255, 255);
-    private Color maleColor = new Color32(70, 150, 255, 255);
-    private Color femaleColor = new Color32(220, 70, 255, 255);
+    private Color unknownColor = new Color32(255, 255, 255, 70);
+    private Color maleColor = new Color32(70, 150, 255, 70);
+    private Color femaleColor = new Color32(230, 120, 255, 70);
 
 
     void Start()
@@ -69,7 +71,7 @@ public class FilterManager : MonoBehaviour
                 targetIcons = null;
                 targetLabels = null;
                 Status.StatusBackground.color = unknownColor;
-                Status.StatusText.text = "Tidak diketahuhi";
+                Status.StatusText.text = "Wajah tidak ditemukan";
                 break;
         }
 
@@ -103,6 +105,10 @@ public class FilterManager : MonoBehaviour
 
         UpdateFilterUI(genderLevel);
     }
-    
+
+    public void ResetFilterIcon()
+    {
+        UpdateFilterUI(0);
+    }
     
 }
