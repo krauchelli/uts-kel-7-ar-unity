@@ -19,6 +19,9 @@ public class FilterButton
 
 public class FilterManagerIcon : MonoBehaviour
 {
+    // [Header("Filter List Panel")]
+    // public GameObject FilterList;
+
     [Header("Filter Buttons")]
     public FilterButton[] filterButtons;
 
@@ -44,7 +47,7 @@ public class FilterManagerIcon : MonoBehaviour
 
     void Start()
     {
-        UpdateFilterUI(genderLevel);
+        ResetFilterIcon();
     }
 
     public void UpdateFilterUI(int gender)
@@ -55,21 +58,23 @@ public class FilterManagerIcon : MonoBehaviour
         switch (gender)
         {
             case 1: // Male
+                // FilterList.SetActive(true);
                 targetIcons = maleIcons;
                 targetLabels = maleLabels;
                 Status.StatusBackground.color = maleColor;
                 Status.StatusText.text = "Laki-laki";
                 break;
             case 2: // Female
+                // FilterList.SetActive(true);
                 targetIcons = femaleIcons;
                 targetLabels = femaleLabels;
                 Status.StatusBackground.color = femaleColor;
                 Status.StatusText.text = "Perempuan";
-
                 break;
             default: // Unknown
                 targetIcons = null;
                 targetLabels = null;
+                // FilterList.SetActive(false);
                 Status.StatusBackground.color = unknownColor;
                 Status.StatusText.text = "Wajah tidak ditemukan";
                 break;
