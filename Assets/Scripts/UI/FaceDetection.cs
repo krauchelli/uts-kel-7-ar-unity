@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
+using UnityEngine.UI;
 
 public class FaceDetection : MonoBehaviour
 {
@@ -9,64 +10,56 @@ public class FaceDetection : MonoBehaviour
     public FilterManagerIcon filterManagerIcon;
 
     [Header("Toggle Detection Button")]
-    public UnityEngine.UI.Image toggleFaceDetectionImage;
+    public Image toggleFaceDetectionImage;
     public Sprite onSprite;
     public Sprite offSprite;
 
     public float delay;
-    private bool isDetecting = false;
-    private Coroutine detectionCorountine;
+    public Button scanButton;
+
+    public UIStatusManager UIStatus;
+    public APIManager APIManager;
 
     public bool IsFaceDetected()
     {
         return (faceManager.trackables.count > 0);
     }
 
-    public void DetectFace()
+    public void SetScanButtonInteractable(bool types)
     {
-        if (faceManager == null || filterManagerIcon == null)
-        {
-            Debug.LogError("Face manager or Filter manager icon not found!");
-            return;
-        }
+        scanButton.interactable = types;
+    }
 
-        if (IsFaceDetected())
+    void Start()
+    {
+        if (!UIStatus.IsStatusLabelNull())
+            UIStatus.SetStatusText("Arahkan kamera ke wajah...", "SYSTEM");
+        if (scanButton != null)
         {
-            filterManagerIcon.OnGenderDetected("male");
-        }
-        else
-        {
-            filterManagerIcon.OnGenderDetected("unknown");
+            scanButton.interactable = false;
+            scanButton.onClick.AddListener(OnScanButtonPressed);
         }
     }
 
-    public void ToggleFaceDetectionLoop()
+    public void OnScanButtonPressed()
     {
-        isDetecting = !isDetecting;
-        toggleFaceDetectionImage.sprite = isDetecting ? onSprite : offSprite;
-        if (isDetecting)
-        {
-            Debug.Log("Face Detection On");
-            detectionCorountine = StartCoroutine(FaceDetectionLoop());
-        }
-        else
-        {
-            Debug.Log("Face Detection Off");
-            if (detectionCorountine != null) StopCoroutine(detectionCorountine);
-        }
-    }
-
-    IEnumerator FaceDetectionLoop() {
-        while (true)
-        {
-            DetectFace();
-            yield return new WaitForSeconds(delay);
-        }
+        UIStatus.SetStatusText("Memindai...", "SYSTEM");
+        scanButton.interactable = false;
+        StartCoroutine(APIManager.CaptureAndSendImageRoutine());
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (IsFaceDetected())
+        {
+            scanButton.interactable = true;
+            UIStatus.SetStatusText("Wajah Terdeteksi! Silakan klik Scan.", "SYSTEM");
+        }
+        else
+        {
+            scanButton.interactable = false;
+            UIStatus.SetStatusText("Arahkan kamera ke wajah...", "SYSTEM");
+        }
     }
 }

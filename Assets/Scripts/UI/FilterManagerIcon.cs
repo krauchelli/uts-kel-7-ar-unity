@@ -1,13 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
-[System.Serializable]
-public class Status
-{
-    public Image StatusBackground; // background dari statusnya
-    public TextMeshProUGUI StatusText; // textnya
-}
+using System;
 
 [System.Serializable]
 public class FilterButton
@@ -33,16 +27,12 @@ public class FilterManagerIcon : MonoBehaviour
     public Sprite[] femaleIcons;
     public string[] femaleLabels;
 
-    [Header("Status Text")]
-    public Status Status;
-
     [Header("Gender Mode (0=Unknown, 1=Male, 2=Female)")]
     [Range(0, 2)]
     public int genderLevel = 0; // 0 unknown, 1 cowo, 2 cewe
 
-    private Color unknownColor = new Color32(255, 255, 255, 70);
-    private Color maleColor = new Color32(70, 150, 255, 70);
-    private Color femaleColor = new Color32(230, 120, 255, 70);
+    [Header("Script Reference")]
+    public UIStatusManager UIStatus;
 
 
     void Start()
@@ -50,35 +40,35 @@ public class FilterManagerIcon : MonoBehaviour
         ResetFilterIcon();
     }
 
-    public void UpdateFilterUI(int gender)
+    public void UpdateFilterUI(int gender, float percentage)
     {
         Sprite[] targetIcons = null;
         string[] targetLabels = null;
+        String textToTampil;
 
-        switch (gender)
-        {
-            case 1: // Male
-                // FilterList.SetActive(true);
-                targetIcons = maleIcons;
-                targetLabels = maleLabels;
-                Status.StatusBackground.color = maleColor;
-                Status.StatusText.text = "Laki-laki";
-                break;
-            case 2: // Female
-                // FilterList.SetActive(true);
-                targetIcons = femaleIcons;
-                targetLabels = femaleLabels;
-                Status.StatusBackground.color = femaleColor;
-                Status.StatusText.text = "Perempuan";
-                break;
-            default: // Unknown
-                targetIcons = null;
-                targetLabels = null;
-                // FilterList.SetActive(false);
-                Status.StatusBackground.color = unknownColor;
-                Status.StatusText.text = "Wajah tidak ditemukan";
-                break;
-        }
+            switch (gender)
+            {
+                case 1: // Male
+                        // FilterList.SetActive(true);
+                    targetIcons = maleIcons;
+                    targetLabels = maleLabels;
+                    textToTampil = percentage > 0 ? "Laki-Laki " + percentage + "%" : "Laki-Laki";
+                    UIStatus.SetStatusText(textToTampil, "GENDERMALE");
+                    break;
+                case 2: // Female
+                        // FilterList.SetActive(true);
+                    targetIcons = femaleIcons;
+                    targetLabels = femaleLabels;
+                    textToTampil = percentage > 0 ? "Perempuan " + percentage + "%" : "Laki-Laki";
+                    UIStatus.SetStatusText(textToTampil, "GENDERFEMALE");
+                    break;
+                default: // Unknown
+                    targetIcons = null;
+                    targetLabels = null;
+                    // FilterList.SetActive(false);
+                    UIStatus.SetStatusText("Wajah tidak ditemukan", null);
+                    break;
+            }
 
         for (int i = 0; i < filterButtons.Length; i++)
         {
@@ -97,7 +87,7 @@ public class FilterManagerIcon : MonoBehaviour
     }
 
     // Fungsi yang bisa dipanggil dari script deteksi
-    public void OnGenderDetected(string gender)
+    public void OnGenderDetected(string gender, float percentage)
     {
         gender = gender.ToLower();
 
@@ -108,12 +98,11 @@ public class FilterManagerIcon : MonoBehaviour
         else
             genderLevel = 0;
 
-        UpdateFilterUI(genderLevel);
+        UpdateFilterUI(genderLevel, percentage);
     }
 
     public void ResetFilterIcon()
     {
-        UpdateFilterUI(0);
+        UpdateFilterUI(0, 0);
     }
-    
 }
